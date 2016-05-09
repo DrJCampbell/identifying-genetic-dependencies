@@ -3,30 +3,26 @@
 # by analyzing siRNA screens in cell line panels
 #
 
-library(preprocessCore)
+
 library(gplots)
 
-#
+
 # Function to create a list of tables with
 # common cell lines in RNAi and mutation
 # data sets.
-#
 
 read_rnai_mutations <- function(
 	rnai_file,
 	func_muts_file,
 	all_muts_file
 	){
+
 	rnai <- read.table(
 		file=rnai_file,
 		header=TRUE,
 		sep="\t",
 		row.names=1
 		)
-	
-	rnai_qn <- t(normalize.quantiles(t(rnai)))
-	rownames(rnai_qn) <- rownames(rnai)
-	colnames(rnai_qn) <- colnames(rnai)
 	
 	func_muts <- read.table(
 		file=func_muts_file,
@@ -42,67 +38,32 @@ read_rnai_mutations <- function(
 		row.names=1
 		)
 	
+	# find the set of cell lines (ie. row names)
+	# in the siRNA and mutation data sets
 	common_celllines <- intersect(
 		rownames(rnai),
-		rownames(func_muts)
+		intersect(
+			rownames(func_muts),
+			rownames(all_muts_muts)
+			)
 		)
 	
-	i <- NULL
-	row.index <- NULL
-	rnai_muts_cmn <- NULL
-	rnai_qn_muts_cmn <- NULL
-	func_muts_rnai_cmn <- NULL
-	all_muts_rnai_cmn <- NULL
-	for(i in seq(1:length(common_celllines))){
-		# rnai subset
-		row.index <- NULL
-		row.index <- which(rownames(rnai) == common_celllines[i])
-		rnai_muts_cmn <- rbind(
-			rnai_muts_cmn,
-			rnai[row.index,]
-		)
-		# rnai_qn subset
-		row.index <- NULL
-		row.index <- which(rownames(rnai_qn) == common_celllines[i])
-		rnai_qn_muts_cmn <- rbind(
-			rnai_qn_muts_cmn,
-			rnai_qn[row.index,]
-		)
-		# func_muts subset
-		row.index <- NULL
-		row.index <- which(rownames(func_muts) == common_celllines[i])
-		func_muts_rnai_cmn <- rbind(
-			func_muts_rnai_cmn,
-			func_muts[row.index,]
-		)
-		# all_muts subset
-		row.index <- NULL
-		row.index <- which(rownames(all_muts) == common_celllines[i])
-		all_muts_rnai_cmn <- rbind(
-			all_muts_rnai_cmn,
-			all_muts[row.index,]
-		)
-	}
-	rownames(rnai_muts_cmn) <- common_celllines
-	rownames(func_muts_rnai_cmn) <- common_celllines
-	rownames(all_muts_rnai_cmn) <- common_celllines
-	
+	# return a list of tables containing only
+	# the common cell lines
 	return(
 		list(
-			rnai=rnai_muts_cmn,
-			rnai_qn=rnai_qn_muts_cmn,
-			func_muts=func_muts_rnai_cmn,
-			all_muts=all_muts_rnai_cmn
+			rnai=rnai[common_celllines,],
+			func_muts=func_muts[common_celllines,],
+			all_muts=all_muts_muts[common_celllines,]
 			)
 		)
 }
 
 
-#
+
 # function to run Wilcoxon Rank Sum tests
 # and Spearman Rank Correlation tests on
 # each siRNA x gene combination
-#
 
 run_univariate_tests <- function(
 	zscores,
@@ -129,21 +90,15 @@ run_univariate_tests <- function(
 		# mutations at all in gene. The 'other' group
 		grpB <- which(all_variants[,gene] == 0)
 
-		# this is used for spearman correlation...
-		mut.status <- rep(NA,nrow(zscores))
-		mut.status[which(mutations[,i] == 1)] <- 1
-		mut.status[which(all_variants [,i] == 0)] <- 0
-
 		j <- NULL
 		for(j in seq(1:length(colnames(zscores)))){
 			
-						
-			# skip if we have <3 viability measurements
+			# skip if we have < 3 viability measurements
 			# in one or other group
-			if(length(na.omit(zscores[grpA,j])) < 3){
-				next
-			}
-			if(length(na.omit(zscores[grpB,j])) < 3){
+			if(min(
+				length(na.omit(zscores[grpA,j])),
+				length(na.omit(zscores[grpB,j]))
+				) < 3){
 				next
 			}
 						
@@ -157,33 +112,20 @@ run_univariate_tests <- function(
 			)
 			wilcox.p <- test$p.value
 			
-			# get the Spearman r value as an effect
-			# size estimate
-			spearman <- NULL
-			try(
-				spearman <- cor.test(
-					zscores[,j],
-					mut.status,
-					method="spearman",
-					use="complete.obs",
-					alternative=alt
-					)
-				)
+			# estimate rank serial correlation
+			# as a common language effect size
+			cles <- 1-(test$statistic/(
+				length(zscores[grpA,j])*length(zscores[grpB,j])
+				)) 
 			
 			marker <- colnames(mutations)[i]
 			target <- colnames(zscores)[j]
 			nA <- length(grpA)
 			nB <- length(grpB)
-			nMin <- min(nA, nB)
 			med.grpA <- median(zscores[grpA,j], na.rm=TRUE)
 			med.grpB <- median(zscores[grpB,j], na.rm=TRUE)
-###			mad.grpA <- mad(zscores[grpA,j], na.rm=TRUE)
-###			mad.grpB <- mad(zscores[grpB,j], na.rm=TRUE)
-			med.diff <- med.grpA - med.grpB
 			min.grpA <- min(zscores[grpA,j], na.rm=TRUE)
 			min.grpB <- min(zscores[grpB,j], na.rm=TRUE)
-			spearman.r <- spearman$estimate
-			spearman.p <- spearman$p.value
 			
 
 			results <- rbind(
@@ -195,11 +137,9 @@ run_univariate_tests <- function(
 					nB,
 					med.grpA,
 					med.grpB,
-					med.diff,
 					min.grpA,
 					min.grpB,
-					spearman.r,
-					spearman.p,
+					cles,
 					wilcox.p
 				)
 			)
@@ -217,11 +157,9 @@ run_univariate_tests <- function(
 		"nB",
 		"med.grpA",
 		"med.grpB",
-		"med.grpA-med.grpB",
 		"min.grpA",
 		"min.grpB",
-		"spearman.r",
-		"spearman.p",
+		"cles",
 		"wilcox.p"
 	)
 	

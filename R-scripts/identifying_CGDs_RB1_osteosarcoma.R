@@ -14,13 +14,13 @@ rb_pathway_all_muts_file <- "./mutation-data/combined_exome_cnv_all_muts_RBpathw
 
 # read in and combine the siRNA and mutation
 # data files
-
 kinome_rb_muts <- read_rnai_mutations(
 	rnai_file=sirna_screens_file,
 	func_muts_file=rb_pathway_func_muts_file,
 	all_muts_file=rb_pathway_all_muts_file
 	)
 
+# run the association tests
 kinome_rb_mut_associations <- run_univariate_tests(
 	zscores=kinome_rb_muts$rnai,
 	mutations=kinome_rb_muts$func_muts,
