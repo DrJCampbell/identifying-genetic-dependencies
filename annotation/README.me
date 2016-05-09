@@ -1,0 +1,11 @@
+This folder contains a Python script (annotate_dependencies.py) along with two files that can be used as input to the script (BIOGRID-GENE-111860-3.4.136.tab2.txt, RB1_regulates.txt). 
+
+annotate_dependencies.py is a Python script that integrates associations from the R scripts in this project with known functional interactions. For details please run 'python annotate_dependencies.py -h' 
+
+BIOGRID-GENE-111860-3.4.136.tab2.txt contains a BioGRID Tab 2.0 formatted file contain RB1 interactions. This was downloaded from thebiogrid.org by searching for 'RB1' in the species 'Homo sapiens' and then choosing 'Download 744 Published Interactions For This Protein'.
+
+RB1_regulates.txt contains a list of gene-regulatory interactions associated with RB1. This was downloaded from pathwaycommons.org by searching for RB1 and downloading the resulting network as a SIF file. This was then filtered using Excel to create a file listing interactions annotated as 'changes-expression-of' with RB1 as the source.
+
+run_example.sh is a bash script that provides two examples of how the annotated_dependencies.py script can be called using the above files as input.
+
+
