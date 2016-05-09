@@ -44,7 +44,7 @@ read_rnai_mutations <- function(
 		rownames(rnai),
 		intersect(
 			rownames(func_muts),
-			rownames(all_muts_muts)
+			rownames(all_muts)
 			)
 		)
 	
@@ -54,7 +54,7 @@ read_rnai_mutations <- function(
 		list(
 			rnai=rnai[common_celllines,],
 			func_muts=func_muts[common_celllines,],
-			all_muts=all_muts_muts[common_celllines,]
+			all_muts=all_muts[common_celllines,]
 			)
 		)
 }
