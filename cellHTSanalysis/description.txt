@@ -1,0 +1,16 @@
+[Description]
+Screen: Human Kinase and Tumour suppressor and cancer gene census screen using Cell Titer Glo assay 
+Screentitle:viability screen
+Version: 0.9
+Date: 260214
+
+Screentype: siRNA interference
+Organism: 143b cell line Human 
+Library: Dharmacon library
+Assay: Reporter 1 for growth and viability (Cell titer Glo). 
+Assaydescription:  Cells were treated with siRNAs in three 384-well plates. Pos cntrls are PLK1 pool, neg cntrl is Qiagen all star +SICON1 neg cntrl +SICON2 neg cntrl
+
+[Files]
+plateList: Platelist.txt
+plateConf: Plateconf.txt
+screenLog: Screenlog.txt
