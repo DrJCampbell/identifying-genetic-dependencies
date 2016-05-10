@@ -46,8 +46,8 @@ xn <- normalizePlates(
 	log=TRUE,
 	method="median",
 	varianceAdjust = "none",
-	negControls="neg",
-	posControls="pos"
+	posControls="siplk1",
+	negControls="sicon1|sicon2|allstar",
 	)
 
 # Scale the well intensities to the median absolute
