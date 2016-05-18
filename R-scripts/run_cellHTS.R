@@ -111,12 +111,12 @@ writeReport(
 
 # For convenience, write Z-scores to a file that can be
 # joined with further screens for analysis 
+genes <- geneAnno(xsc)
 plates <-plate(xsc)
 wells <- well(xsc)
-scores <- Data(xsc)
-compounds <- geneAnno(xsc)
+scores <- Data(xsc)[,1,1]
 combinedz <- data.frame(
-	compound=compounds,
+	gene=genes,
 	plate=plates,
 	well=wells,
 	zscore=scores
@@ -125,8 +125,24 @@ combinedz <- data.frame(
 write.table(
 	combinedz,
 	"zscores.txt",
+	col.names=TRUE,
 	sep="\t",
 	quote=FALSE,
 	row.names=FALSE
 	)
+
+# produce a matrix of correlation
+# coefficients for each pair of
+# replicates
+cor(
+	summary_info[,c(
+		"normalized_r1_ch1",
+		"normalized_r2_ch1",
+		"normalized_r3_ch1"
+		)],
+	use="pairwise.complete.obs"
+	)
+
+
+
 
