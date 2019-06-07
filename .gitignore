@@ -1,2 +1,4 @@
 .DS_Store
 */.DS_Store
+R-scripts/run_cellhts_screenlog_test.r
+cellHTSanalysis/report
